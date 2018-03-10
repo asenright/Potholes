@@ -54,18 +54,7 @@ def endCapture():
     sense.show_message("Ended", text_colour=blue)
     buildAccelerometerCSV()
     
-while True:
-    for event in sense.stick.get_events():
-        direction = ( event.direction )
-        if direction == 'up':
-            direction = startCapture(direction)
-        elif direction == 'down':
-            endCapture()
-            reset()
-        elif direction == 'left':
-            sys.exit()
-        else:
-            time.sleep(.5)
+
     
     
     
