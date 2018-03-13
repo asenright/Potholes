@@ -5,23 +5,24 @@ import threading
 import time
 import accelerometer
 import gps
+from sense_hat import SenseHat
 
-exitFlag = 0
+sense = SenseHat()
+exitFlag = False
 
 class potholes (threading.Thread):
-
 	while True:
 		for event in sense.stick.get_events():
-			direction = ( event.direction )
+			direction = (event.direction )
 			if direction == 'up':
 				# direction = startCapture(direction)
-				
+				t_gps = threading.Thread(target=gps)
+				t_accel = threading.Thread(target=accelerometer)
 				print "Creating GPS thread"
-				t_gps = threading.Thread(target=run_gps(),name="gpsThread",args=())
-				t_gps.daemon = False
+				
+				t_gps.daemon = True
 				print "Creating accel thread"
-				t_accel = threading.Thread(target=startCapture(),name="accelThread",args=())
-				t_accel.daemon = False
+				t_accel.daemon = True
 			
 				print "Starting..."
 				t_gps.start()
@@ -30,12 +31,9 @@ class potholes (threading.Thread):
 				endCapture()
 				reset()
 			elif direction == 'left':
-				sys.exit()
+				endCapture()
+				exitFlag = True
+				exit()
 			else:
 				time.sleep(.5)
-				
-				
-		def __init__ (self, name):
-
-
 		
