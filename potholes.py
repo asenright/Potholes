@@ -20,8 +20,11 @@ class potholes (threading.Thread):
 	t_accel = None
 	
 	curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
+	
 	logName = 'potholes_ ' + curDT + '.log'
 	logging.basicConfig(filename=logName,level=logging.DEBUG)
+	logger = logging.getLogger('potholes')
+	logger.setLevel(logging.DEBUG)
 	
 	while True:
 		for event in sense.stick.get_events():
@@ -33,13 +36,14 @@ class potholes (threading.Thread):
 					t_gps = threading.Thread(target=gps)
 					t_gps.daemon = True
 					t_gps.start()
+					t_gps.join()
 					
 				if t_accel == None:
 					logging.debug('Creating accel thread')
 					t_accel = threading.Thread(target=accelerometer)
 					t_accel.daemon = True
 					t_accel.start()
-					
+					t_accel.join()
 				
 			# This functionality should be relocated to accelerometer 
 			# elif direction == 'down':
