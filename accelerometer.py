@@ -6,9 +6,10 @@ import threading
 import logging
 from datetime import datetime
 from sense_hat import SenseHat
+import os
 
 class accelerometer(threading.Thread):
-	global x, y, z, timestamp
+	global x, y, z, timestamp, red, blue
 	global sense
 	
 	sense = SenseHat()
@@ -17,8 +18,7 @@ class accelerometer(threading.Thread):
 	z = []
 	timestamp = []
 	sense.clear()
-	blue = [0, 125, 0]
-	red = [125, 0, 0]
+
 	
 	global logger
 	logger = logging.getLogger()
@@ -30,34 +30,37 @@ class accelerometer(threading.Thread):
 	timestamp[:] = []
 
 	def __init__(self):
+		threading.Thread.__init__(self)
 		logging.debug('Initialized Accel\n')
 		sense.clear()
-		
-	def run(self):
-		logger.debug('Running Accelerometer\n')
-		sense.show_message("Starting", text_colour=blue)
-		while config.exitFlag == False:
-			getAccelerometer()
-			getTime()
-		logger.debug('Closing Accelerometer\n')
-		buildAccelerometerCSV()
-		sense.show_message("Ended", text_colour=blue)
 
-	def getAccelerometer():
+	def getAccelerometer(self):
 		global x,y,z
 		accelerometer_data = sense.get_accelerometer_raw()
 		x.append(accelerometer_data['x'])
 		y.append(accelerometer_data['y'])
 		z.append(accelerometer_data['z'])
 		
-	def getTime():
-		global timestamp
-		timestamp.append(datetime.datetime.now().strftime("%H:%M:%S:%f"))
+	def run(self):
+		logger.debug('Running Accelerometer\n')
 
-	def buildAccelerometerCSV():
+		while config.exitFlag == False:
+			self.getAccelerometer()
+			self.getTime()
+		logger.debug('Closing Accelerometer\n')
+		self.buildAccelerometerCSV()
+		exit(0)
+
+		
+	def getTime(self):
+		global timestamp
+		timestamp.append(datetime.now().strftime("%H:%M:%S:%f"))
+
+	def buildAccelerometerCSV(self):
 		logging.debug('Building accel csv...')
 		global x,y,z, timestamp
-		filename = 'Acc_'+datetime.datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv'
+		filename = 'out/Acc_'+ datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv'
+		config.AccelFilename = filename
 		file_writer = csv.writer(open(filename, 'w'), delimiter=',')
 		file_writer.writerow(["X", "Y", "Z", "Time hour:minute:second:microsecond"])
 		for i in range(len(x)):

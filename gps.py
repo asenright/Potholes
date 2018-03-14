@@ -12,6 +12,7 @@ import threading
 from datetime import datetime
 import logging
 import config
+import os
 
 class gps(threading.Thread):
 	global logger
@@ -19,6 +20,7 @@ class gps(threading.Thread):
 	logger.setLevel(logging.DEBUG)
 
 	def __init__(self):
+		threading.Thread.__init__(self)
 		logger.debug('Initialized GPS\n')
 		global ser, curDT
 		ser = serial.Serial(
@@ -32,7 +34,8 @@ class gps(threading.Thread):
 		
 	def run(self):
 		logger.debug('Running GPS\n')
-		filename = "GPS_" + curDT + ".csv"
+		filename = "out/GPS_" + curDT + ".csv"
+		config.GPSFilename = filename
 		with open(filename, 'wb') as csvfile:
 			csvWriter = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
 			logger.debug('Opened ' + filename + '\n')
@@ -49,5 +52,7 @@ class gps(threading.Thread):
 						csvWriter.writerow(curRow)
 				except (RuntimeError, TypeError, NameError):
 					logger.error('General exception. Closing down GPS.\n')
+			
 					raise SystemExit
 		logger.debug('GPS closed nicely\n')
+		exit(0)
