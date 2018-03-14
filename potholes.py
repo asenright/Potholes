@@ -9,10 +9,10 @@ from gps import gps
 from sense_hat import SenseHat
 from datetime import datetime
 
+import config
+
 class potholes (threading.Thread):
 	sense = SenseHat()
-	global exitFlag
-	exitFlag = False
 	
 	#####All thread names go here in global#####
 	global t_gps, t_accel
@@ -23,7 +23,7 @@ class potholes (threading.Thread):
 	
 	logName = 'potholes_ ' + curDT + '.log'
 	logging.basicConfig(filename=logName,level=logging.DEBUG)
-	logger = logging.getLogger('potholes')
+	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 	
 	while True:
@@ -32,15 +32,15 @@ class potholes (threading.Thread):
 			if direction == 'up':
 				# direction = startCapture(direction)
 				if t_gps == None:
-					logging.debug('Creating GPS thread')
-					t_gps = threading.Thread(target=gps)
+					logging.debug('Creating GPS thread\n')
+					t_gps=threading.Thread(target=gps)
 					t_gps.daemon = True
 					t_gps.start()
 					t_gps.join()
 					
 				if t_accel == None:
-					logging.debug('Creating accel thread')
-					t_accel = threading.Thread(target=accelerometer)
+					logging.debug('Creating accel thread\n')
+					t_accel=threading.Thread(target=accelerometer)
 					t_accel.daemon = True
 					t_accel.start()
 					t_accel.join()
@@ -50,10 +50,9 @@ class potholes (threading.Thread):
 				# endCapture()
 				# reset()
 			elif direction == 'left':
-				logging.debug('Closing potholes nicely.')
-				t_gps.exitFlag = True
-				t_accel.exitFlag = True
-				exitFlag = True
+				logging.debug('Closing potholes...\n')
+				config.exitFlag = True
+				logging.debug('Potholes closed nicely.\n')
 				exit()
 			else:
 				time.sleep(.5)

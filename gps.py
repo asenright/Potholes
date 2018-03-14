@@ -11,16 +11,15 @@ import sys
 import threading
 from datetime import datetime
 import logging
+import config
 
 class gps(threading.Thread):
-	global exitFlag
-	exitFlag = False
 	global logger
-	logger = logging.getLogger('potholes')
+	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 
 	def __init__(self):
-		logger.debug('Initialized GPS')
+		logger.debug('Initialized GPS\n')
 		global ser, curDT
 		ser = serial.Serial(
 			port='/dev/ttyS0',
@@ -32,23 +31,23 @@ class gps(threading.Thread):
 		curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
 		
 	def run(self):
-		logger.debug('Running GPS')
-		with open("GPS_" + curDT + ".csv", 'wb') as csvfile:
+		logger.debug('Running GPS\n')
+		filename = "GPS_" + curDT + ".csv"
+		with open(filename, 'wb') as csvfile:
 			csvWriter = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
+			logger.debug('Opened ' + filename + '\n')
 			headers = ["datetime", "num_sats", "latitude", "latitude_dir", "longitude", "longitude_dir"]
 			csvWriter.writerow(headers)	
-			while exitFlag == False:
+			while config.exitFlag == False:
 				try: 
 					line = ser.readline()
 					if '$GPGGA' in line:
 						msg = pynmea2.parse(line)
-						if msg.num_sats == "00":							
-							logger.warning('!!! Warning !!! No satellites in range, long and lat likely inaccurate')
 						#Removed the below log as it's just going to take up space. This info is available in the 'gps_*.csv' file.
 						#logger.info('---Latitude: ' + msg.lat + ' ' + msg.lat_dir + '---Longitude: ' + msg.lon + ' ' + msg.lon_dir)
 						curRow = [curDT, msg.num_sats, msg.lat, msg.lat_dir, msg.lon, msg.lon_dir]
 						csvWriter.writerow(curRow)
 				except (RuntimeError, TypeError, NameError):
-					logger.error('General exception. Closing down GPS.')
+					logger.error('General exception. Closing down GPS.\n')
 					raise SystemExit
-		logger.debug('GPS closed nicely')
+		logger.debug('GPS closed nicely\n')

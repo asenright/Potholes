@@ -1,5 +1,6 @@
 import time
 import csv
+import config
 import sys
 import threading
 import logging
@@ -7,9 +8,6 @@ from datetime import datetime
 from sense_hat import SenseHat
 
 class accelerometer(threading.Thread):
-	global exitFlag
-	exitFlag = False
-	
 	global x, y, z, timestamp
 	global sense
 	
@@ -23,7 +21,7 @@ class accelerometer(threading.Thread):
 	red = [125, 0, 0]
 	
 	global logger
-	logger = logging.getLogger('potholes')
+	logger = logging.getLogger()
 	logger.setLevel(logging.DEBUG)
 	
 	x[:] = []
@@ -32,8 +30,18 @@ class accelerometer(threading.Thread):
 	timestamp[:] = []
 
 	def __init__(self):
-		logging.debug('Initialized Accel')
+		logging.debug('Initialized Accel\n')
 		sense.clear()
+		
+	def run(self):
+		logger.debug('Running Accelerometer\n')
+		sense.show_message("Starting", text_colour=blue)
+		while config.exitFlag == False:
+			getAccelerometer()
+			getTime()
+		logger.debug('Closing Accelerometer\n')
+		buildAccelerometerCSV()
+		sense.show_message("Ended", text_colour=blue)
 
 	def getAccelerometer():
 		global x,y,z
@@ -49,20 +57,13 @@ class accelerometer(threading.Thread):
 	def buildAccelerometerCSV():
 		logging.debug('Building accel csv...')
 		global x,y,z, timestamp
-		filename = '/home/pi/Desktop/190/data/acc'+datetime.datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv'
+		filename = 'Acc_'+datetime.datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv'
 		file_writer = csv.writer(open(filename, 'w'), delimiter=',')
 		file_writer.writerow(["X", "Y", "Z", "Time hour:minute:second:microsecond"])
 		for i in range(len(x)):
 			file_writer.writerow([x[i], y[i], z[i], timestamp[i]])
-		logging.debug('Accelerometer csv built')
+		logging.debug('Accelerometer csv built\n')
 			
-	def run(self):
-		logger.debug('Running Accel')
-		sense.show_message("Starting", text_colour=blue)
-		while exitFlag == False:
-			getAccelerometer()
-			getTime()
-		buildAccelerometerCSV()
-		sense.show_message("Ended", text_colour=blue)
+
 		
     
