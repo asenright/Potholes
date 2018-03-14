@@ -1,0 +1,5 @@
+DEBUG:root:Creating GPS thread
+DEBUG:potholes:Initialized GPS
+DEBUG:root:Creating accel thread
+DEBUG:root:Initialized Accel
+DEBUG:root:Closing potholes nicely.

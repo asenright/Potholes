@@ -10,11 +10,17 @@ import pynmea2
 import sys
 import threading
 from datetime import datetime
-
+import logging
 
 class gps(threading.Thread):
-	def __init__():
-		print "Initialized GPS"
+	global exitFlag
+	exitFlag = False
+	global logger
+	logger = logging.getLogger('potholes')
+	logger.setLevel(logging.DEBUG)
+
+	def __init__(self):
+		logger.debug('Initialized GPS')
 		global ser, curDT
 		ser = serial.Serial(
 			port='/dev/ttyS0',
@@ -24,7 +30,9 @@ class gps(threading.Thread):
 			bytesize=serial.EIGHTBITS,	
 			timeout=1)		
 		curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
-	def run(exitFlag):
+		
+	def run(self):
+		logger.debug('Running GPS')
 		with open("GPS_" + curDT + ".csv", 'wb') as csvfile:
 			csvWriter = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
 			headers = ["datetime", "num_sats", "latitude", "latitude_dir", "longitude", "longitude_dir"]
@@ -34,13 +42,13 @@ class gps(threading.Thread):
 					line = ser.readline()
 					if '$GPGGA' in line:
 						msg = pynmea2.parse(line)
-						# print "---Number of satellites in comms range: " + msg.num_sats
-						# if msg.num_sats == "00":							
-						# print "!!! Warning !!! No satellites in range, long and lat likely inaccurate"
-					print "---Latitude: " + msg.lat + " " + msg.lat_dir + "---Longitude: " + msg.lon + " " + msg.lon_dir
-					curRow = [curDT, msg.num_sats, msg.lat, msg.lat_dir, msg.lon, msg.lon_dir]
-					csvWriter.writerow(curRow)
+						if msg.num_sats == "00":							
+							logger.warning('!!! Warning !!! No satellites in range, long and lat likely inaccurate')
+						#Removed the below log as it's just going to take up space. This info is available in the 'gps_*.csv' file.
+						#logger.info('---Latitude: ' + msg.lat + ' ' + msg.lat_dir + '---Longitude: ' + msg.lon + ' ' + msg.lon_dir)
+						curRow = [curDT, msg.num_sats, msg.lat, msg.lat_dir, msg.lon, msg.lon_dir]
+						csvWriter.writerow(curRow)
 				except (RuntimeError, TypeError, NameError):
-					print "General exception. Closing down GPS."
+					logger.error('General exception. Closing down GPS.')
 					raise SystemExit
-		print "GPS closed nicely"
+		logger.debug('GPS closed nicely')

@@ -3,35 +3,52 @@
 
 import threading
 import time
-import accelerometer
-import gps
+import logging
+from accelerometer import accelerometer
+from gps import gps 
 from sense_hat import SenseHat
-
-sense = SenseHat()
-exitFlag = False
+from datetime import datetime
 
 class potholes (threading.Thread):
+	sense = SenseHat()
+	global exitFlag
+	exitFlag = False
+	
+	#####All thread names go here in global#####
+	global t_gps, t_accel
+	t_gps = None
+	t_accel = None
+	
+	curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
+	logName = 'potholes_ ' + curDT + '.log'
+	logging.basicConfig(filename=logName,level=logging.DEBUG)
+	
 	while True:
 		for event in sense.stick.get_events():
 			direction = (event.direction )
 			if direction == 'up':
 				# direction = startCapture(direction)
-				t_gps = threading.Thread(target=gps)
-				t_accel = threading.Thread(target=accelerometer)
-				print "Creating GPS thread"
+				if t_gps == None:
+					logging.debug('Creating GPS thread')
+					t_gps = threading.Thread(target=gps)
+					t_gps.daemon = True
+					t_gps.start()
+					
+				if t_accel == None:
+					logging.debug('Creating accel thread')
+					t_accel = threading.Thread(target=accelerometer)
+					t_accel.daemon = True
+					t_accel.start()
+					
 				
-				t_gps.daemon = True
-				print "Creating accel thread"
-				t_accel.daemon = True
-			
-				print "Starting..."
-				t_gps.start()
-				t_accel.start()
-			elif direction == 'down':
-				endCapture()
-				reset()
+			# This functionality should be relocated to accelerometer 
+			# elif direction == 'down':
+				# endCapture()
+				# reset()
 			elif direction == 'left':
-				endCapture()
+				logging.debug('Closing potholes nicely.')
+				t_gps.exitFlag = True
+				t_accel.exitFlag = True
 				exitFlag = True
 				exit()
 			else:
