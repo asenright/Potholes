@@ -8,7 +8,7 @@ import signal
 from accelerometer import accelerometer
 from gps import gps 
 from upload import upload
-import sense_hat
+from sense_hat import SenseHat
 from datetime import datetime
 import os
 
@@ -39,9 +39,11 @@ class potholes (threading.Thread):
 	red = [125, 0, 0]
 	startMsgShown = False
 
+
+	
 	try:
-		sense = sense_hat.SenseHat()
-		hasHat = True
+            sense = SenseHat()
+            hasHat = True
 	except OSError:
 		logging.error('potholes.py : No senseHat detected; accelerometer data unavailable for this session')
 		hasHat = False

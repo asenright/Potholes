@@ -30,10 +30,11 @@ class accelerometer(threading.Thread):
 	
 
 	def __init__(self):
+                global sense
 		threading.Thread.__init__(self)
 		logging.debug('Initialized Accel\n')
 		try:
-        	        sense = sense_hat.SenseHat()
+        	        sense = SenseHat()
 	        except:
                 	logging.error('accelerometer.py: SenseHat not attached. No accelerometer data will be available for this session.')
 			return(0)
