@@ -2,10 +2,11 @@ import csv
 import matplotlib
 from matplotlib import pyplot
 
-f = open('Data1.csv')
+f = open('ymoving.csv')
 csv_f = csv.reader(f)
 yaxis = []
 time = []
+next(csv_f) #skip first line
 for row in csv_f:
     yaxis.append(float(row[2]))
     time_split = list(map(int, row[3].split(':')))
