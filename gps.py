@@ -31,7 +31,7 @@ class gps(threading.Thread):
 			stopbits=serial.STOPBITS_ONE,
 			bytesize=serial.EIGHTBITS,	
 			timeout=1)		
-		curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
+		curDT = datetime.now().strftime("%H:%M:%S:%f")
 		
 	def run(self):
 		logger.debug('Running GPS\n')
@@ -50,6 +50,7 @@ class gps(threading.Thread):
 			while config.exitFlag == False:
 				try: 
 					line = ser.readline()
+					curDT = datetime.now().strftime("%H:%M:%S:%f")
 					if '$GPGGA' in line:
 						msg = pynmea2.parse(line)
 						#Removed the below log as it's just going to take up space. This info is available in the 'gps_*.csv' file.
