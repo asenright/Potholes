@@ -1,19 +1,35 @@
 import csv
 
 yaxis = []
-threshold = .7000
+threshold = .1000
+longitude = []
+latitude = []
+gps_time = []
+acc_time = []
+bumpList = []
 
-def basicParse():
-    with open('data1.csv', 'r') as csvfile:
-            datafilereader = csv.reader(csvfile, delimiter=',')
-        
-        
-            #skip first line of .csv
-            next(datafilereader)
-        
-            #get all y axis data
-            for row in datafilereader:
+def fullParse():
+    try:
+        with open('out/gps.csv', 'r') as gpsfile:
+            gps_file = csv.reader(gpsfile, delimiter = ',')
+            next(gps_file)
+            for row in gps_file:
+                gps_time.append(row[0])
+                latitude.append(float(row[2]))
+                longitude.append(float(row[4]))
+    except:
+        print("error parsing gps.csv")
+        exit()
+    try:    
+        with open('out/acc.csv', 'r') as accfile:
+            acc_file = csv.reader(accfile, delimiter = ',')
+            next(acc_file)
+            for row in acc_file:
                 yaxis.append(float(row[2]))
+                acc_time.append(row[3])
+    except:
+        print("error parsing acc.csv")
+        exit()
                 
 def bumpCounter(yaxis):
     in_bump = False
@@ -29,9 +45,46 @@ def bumpCounter(yaxis):
                 in_bump = False
     return bumpcount
 
-def main():
-    basicParse()
-    print(bumpCounter(yaxis))
+def isBetween(acceltime, gpstime1, gpstime2):
+    acc_split = list(map(int, acceltime.split(':')))
+    gps1_split = list(map(int, gpstime1.split(':')))
+    gps2_split = list(map(int, gpstime2.split(':')))
     
+    totalacc = acc_split[0]*3600 + acc_split[1]*60 + acc_split[2] + float(acc_split[3]*0.000001)
+    totalgps1 = gps1_split[0]*3600 + gps1_split[1]*60 + gps1_split[2] + float(gps1_split[3]*0.000001)
+    totalgps2 = gps2_split[0]*3600 + gps2_split[1]*60 + gps2_split[2] + float(gps2_split[3]*0.000001)
+    
+    if((totalacc>= totalgps1) and (totalacc<=totalgps2)):
+        return True
+    else:
+        return False
+
+def main():
+    fullParse()
+    acc_data = []
+    global bumpList
+    z = 0
+    bumpList.append(0)
+    for i, j in enumerate(gps_time[:-1]):
+        acc_data[:]
+        if (isBetween(acc_time[z], j, gps_time[i+1])):
+            z=z+1
+        while (isBetween(acc_time[z], j, gps_time[i+1])):
+            acc_data.append(yaxis[z])
+            z=z+1
+        for row in acc_data:
+            print(row)
+        bumpList.append(bumpCounter(acc_data))
+#    for row in bumpList:
+#        print(row)
+            
 if __name__ == "__main__":
     main()
+    
+    
+    
+    
+    
+    
+    
+    
