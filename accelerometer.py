@@ -8,6 +8,8 @@ from datetime import datetime
 from sense_hat import SenseHat
 import os
 
+"""change import sense_hat to import sense_emu to use emulator"""
+
 class accelerometer(threading.Thread):
 	global x, y, z, timestamp, red, blue
 	global sense
