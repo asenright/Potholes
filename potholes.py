@@ -7,13 +7,14 @@ import logging
 import signal
 from accelerometer import accelerometer
 from gps import gps 
+from upload import upload
 import sense_hat
 from datetime import datetime
 import os
 
 
 class potholes (threading.Thread):
-	global t_gps, t_accel, logName, startMsgShown, hasHat
+	global t_gps, t_accel, t_upload, logName, startMsgShown, hasHat
 
 	dirname = os.path.dirname(__file__)
 	outputPath = os.path.realpath(os.path.join(dirname, 'out'))
@@ -23,6 +24,7 @@ class potholes (threading.Thread):
 	
 	t_gps = None
 	t_accel = None
+	t_upload = None
 	
 	curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
 	
@@ -49,15 +51,32 @@ class potholes (threading.Thread):
 				if direction == 'up':
 					# direction = startCapture(direction)
 					if t_gps == None:
-						logging.debug('Creating GPS thread\n')
-						t_gps = gps()
-						t_gps.daemon = True
-						t_gps.start()
+						try:
+							logging.debug('Creating GPS thread\n')
+							t_gps = gps()
+							t_gps.daemon = True
+							t_gps.start()
+						except: 
+							logging.error('Error starting GPS thread\n')
+							pass
 					if t_accel == None:
-						logging.debug('Creating accel thread\n')					
-						t_accel = accelerometer()
-						t_accel.daemon = True
-						t_accel.start()
+						try:
+							logging.debug('Creating accel thread\n')					
+							t_accel = accelerometer()
+							t_accel.daemon = True
+							t_accel.start()
+						except:
+							logging.error('Error starting accel thread\n')
+							pass
+					if t_upload == None:
+						try:
+							logging.debug('Creating upload thread\n')					
+							t_upload = upload()
+							t_upload.daemon = True
+							t_upload.start()	
+						except:
+							logging.error('Error starting accel thread\n')
+							pass
 					if startMsgShown == False: 
 						sense.show_message("Starting", text_colour=blue)
 						startMsgShown = True
@@ -72,16 +91,21 @@ class potholes (threading.Thread):
 					time.sleep(0.5)
 	else:
 		try:
-			while (config.exitFlag == False):
-				if t_gps == None:
+			if t_gps == None:
 					logging.debug('Creating GPS thread\n')
 					t_gps = gps()
 					t_gps.daemon = True
 					t_gps.start()
-				time.sleep(.5)
+			if t_upload == None:
+					logging.debug('Creating upload thread\n')					
+					t_upload = upload()
+					t_upload.daemon = True
+					t_upload.start()	
+			while (config.exitFlag == False):
+				time.sleep(config.uploadTimer)
 		except KeyboardInterrupt:
 			config.exitFlag = True
 			logging.debug('Potholes closed nicely.\n')
-			time.sleep(0.5)
+			time.sleep(0.1)
 			exit(0)
 				
