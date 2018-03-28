@@ -14,26 +14,30 @@ class accelerometer(threading.Thread):
 	global x, y, z, timestamp, red, blue
 	global sense
 	
-	sense = SenseHat()
+        global logger
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+		
 	x = []
 	y = []
 	z = []
 	timestamp = []
-	sense.clear()
-
-	
-	global logger
-	logger = logging.getLogger()
-	logger.setLevel(logging.DEBUG)
 	
 	x[:] = []
 	y[:] = []
 	z[:] = []
 	timestamp[:] = []
+	
 
 	def __init__(self):
 		threading.Thread.__init__(self)
 		logging.debug('Initialized Accel\n')
+		try:
+        	        sense = sense_hat.SenseHat()
+	        except:
+                	logging.error('accelerometer.py: SenseHat not attached. No accelerometer data will be available for this session.')
+			return(0)
+
 		sense.clear()
 
 	def getAccelerometer(self):
@@ -61,14 +65,10 @@ class accelerometer(threading.Thread):
 	def buildAccelerometerCSV(self):
 		logging.debug('Building accel csv...')
 		global x,y,z, timestamp
-		filename = 'out/Acc_'+ datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv'
+		filename = os.path.join(config.outputPath, 'Acc_'+ datetime.now().strftime("%Y_%m_%d %H:%M:%S") +'.csv')
 		config.AccelFilename = filename
 		file_writer = csv.writer(open(filename, 'w'), delimiter=',')
 		file_writer.writerow(["X", "Y", "Z", "Time hour:minute:second:microsecond"])
 		for i in range(len(x)):
 			file_writer.writerow([x[i], y[i], z[i], timestamp[i]])
 		logging.debug('Accelerometer csv built\n')
-			
-
-		
-    
