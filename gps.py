@@ -13,6 +13,7 @@ from datetime import datetime
 import logging
 import config
 import os
+import os.path
 
 class gps(threading.Thread):
 	global logger
@@ -34,13 +35,18 @@ class gps(threading.Thread):
 		
 	def run(self):
 		logger.debug('Running GPS\n')
-		filename = "out/GPS_" + curDT + ".csv"
+		filename = "out/gps.csv"
 		config.GPSFilename = filename
-		with open(filename, 'wb') as csvfile:
+		needsHeaders = False
+		if not os.path.isfile(filename):
+			needsHeaders = True
+			logging.debug('Creating new GPS.csv')
+		with open(filename, 'a+') as csvfile:			
 			csvWriter = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
 			logger.debug('Opened ' + filename + '\n')
-			headers = ["datetime", "num_sats", "latitude", "latitude_dir", "longitude", "longitude_dir"]
-			csvWriter.writerow(headers)	
+			if (needsHeaders == True):
+				headers = ["datetime", "num_sats", "latitude", "latitude_dir", "longitude", "longitude_dir"]
+				csvWriter.writerow(headers)	
 			while config.exitFlag == False:
 				try: 
 					line = ser.readline()
@@ -54,5 +60,6 @@ class gps(threading.Thread):
 					logger.error('General exception. Closing down GPS.\n')
 			
 					raise SystemExit
+			csvfile.close()
 		logger.debug('GPS closed nicely\n')
 		exit(0)

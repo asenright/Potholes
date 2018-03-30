@@ -15,19 +15,20 @@ class upload(threading.Thread):
 
 	def __init__(self):
 		threading.Thread.__init__(self)
-		logger.debug('Initialized Upload\n')
+		logging.debug('Initialized Upload\n')
      		   
 	def run(self):
-		logger.debug('Running Upload\n')
+		logging.debug('Running Upload\n')
 		while (config.exitFlag == False):
 			curDT = datetime.utcnow().strftime("%Y-%m-%d %X")
 			if (self.internet_access() == True):
-				logger.debug('Uploader executing at ' + curDT)
+				logging.debug('Uploader executing at ' + curDT)
 				myConnection = pymysql.connect( host=config.databaseLocation, user=config.mySqlUsername, passwd=config.mySqlPassword, db=config.databaseName )
+				run_sql_file(config.mySqlUploadScriptName, myConnection)
 			else:
 				pass
 			time.sleep(config.uploadTimer)
-		logger.debug('Upload closed nicely\n')
+		logging.debug('upload: closed nicely\n')
 		exit(0)
 		
 	def internet_access(self):
@@ -42,11 +43,11 @@ class upload(threading.Thread):
 		start = time.time()
     		file = open(filename, 'r')
     		sql = " ".join(file.readlines())
-    		logger.debug("Start executing: " + filename + " at " + str(tdatetime.now().strftime("%Y-%m-%d %H:%M")) + "\n" + sql) 
+    		logging.debug("upload: Start executing: " + filename + " at " + str(tdatetime.now().strftime("%Y-%m-%d %H:%M")) + "\n" + sql) 
 		cursor = connection.cursor()
 		cursor.execute(sql)    
 		connection.commit()
     
 		end = time.time()
-		print "Time elapsed to run the query:	"
-		print str((end - start)*1000) + ' ms'
+		#print "Time elapsed to run the query:	"
+		#print str((end - start)*1000) + ' ms'

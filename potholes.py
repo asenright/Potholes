@@ -19,6 +19,8 @@ class potholes (threading.Thread):
 	dirname = os.path.dirname(__file__)
 	outputPath = os.path.realpath(os.path.join(dirname, 'out'))
 	config.outputPath = outputPath
+	if not os.path.exists(outputPath):
+		os.makedirs(outputPath)
 	
 	#####All thread names go here in global#####
 	
