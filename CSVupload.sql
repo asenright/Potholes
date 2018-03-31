@@ -38,19 +38,19 @@ LOAD DATA LOCAL INFILE '/gaia/class/student/suj/190/SQL/analyzed.csv'
 INTO TABLE analyzed
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n' 
-IGNORE 2 ROWS;
+IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE '/gaia/class/student/suj/190/SQL/acc.csv' --
 INTO TABLE acc
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n' 
-IGNORE 2 ROWS;
+IGNORE 1 ROWS;
 
 LOAD DATA LOCAL INFILE '/gaia/class/student/suj/190/SQL/gps.csv'
 INTO TABLE gps
 FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\n' 
-IGNORE 2 ROWS;
+IGNORE 1 ROWS;
 
 --shows the data of each table
 SELECT * FROM analyzed;
