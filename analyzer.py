@@ -1,3 +1,6 @@
+#analyzer.py
+#looks at gps.csv and acc.csv to count bumps and make analyzed.csv
+
 import csv
 
 yaxis = []
@@ -37,7 +40,7 @@ def bumpCounter(yaxis):
     for i, j in enumerate(yaxis[:-1]):
         if (abs(j-yaxis[i+1]) > threshold) and (in_bump==False):
             bumpcount+=1
-            in_bump = False
+            in_bump = True
         elif(in_bump):
             if ((j>yaxis[i-1]) and (j>yaxis[i+1])):
                 in_bump= False
