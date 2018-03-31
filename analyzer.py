@@ -1,7 +1,7 @@
 import csv
 
 yaxis = []
-threshold = .1000
+threshold = 1.4000
 longitude = []
 latitude = []
 gps_time = []
@@ -66,18 +66,16 @@ def main():
     z = 0
     bumpList.append(0)
     for i, j in enumerate(gps_time[:-1]):
-        acc_data[:]
-        if (isBetween(acc_time[z], j, gps_time[i+1])):
+        acc_data[:] = []
+        while (isBetween(acc_time[z], j, gps_time[i+1])== False):
             z=z+1
         while (isBetween(acc_time[z], j, gps_time[i+1])):
             acc_data.append(yaxis[z])
             z=z+1
-        for row in acc_data:
-            print(row)
         bumpList.append(bumpCounter(acc_data))
-#    for row in bumpList:
-#        print(row)
-            
+
+    for row in bumpList:
+        print(row)
 if __name__ == "__main__":
     main()
     
