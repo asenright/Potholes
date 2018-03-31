@@ -58,6 +58,11 @@ def isBetween(acceltime, gpstime1, gpstime2):
         return True
     else:
         return False
+def outputCSV():
+    file_writer = csv.writer(open('out/analyzed.csv', 'w'), delimiter = ',')
+    file_writer.writerow(["time hh:mm:ss:microseconds", "latitude 1", "longitude 1", "latitude 2", "longitude 2", "bumps between"])
+    for i, row in enumerate(gps_time[:-1]):
+        file_writer.writerow([row, latitude[i], longitude[i], latitude[i+1], longitude[i+1], bumpList[i+1]])
 
 def main():
     fullParse()
@@ -73,9 +78,8 @@ def main():
             acc_data.append(yaxis[z])
             z=z+1
         bumpList.append(bumpCounter(acc_data))
+    outputCSV()
 
-    for row in bumpList:
-        print(row)
 if __name__ == "__main__":
     main()
     
