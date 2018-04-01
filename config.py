@@ -13,13 +13,13 @@ global outputPath
 
 ###How long the system should wait between checking if can upload.
 global uploadTimer
-uploadTimer = 10
+uploadTimer = 60
 
 ###Name of the mySQL script that handles uploading data to DB.
-global mySqlUploadScriptName, mySqlUsername, mySqlPassword, testAddress, databaseLocation, databaseName
-mySqlUploadScriptName = ""
-mySqlUsername = ""
-mySqlPassword = ""
-databaseLocation = ""
-databaseName = ""
-testAddress="http://8.8.8.8"
+global mySqlUploadScriptName, mySqlUsername, mySqlPassword, testAddress, mySqlHostname, mySqlDbName
+mySqlUploadScriptName = "CSVupload.sql"
+mySqlUsername = None
+mySqlPassword = None
+mySqlHostname = "http://athena.ecs.csus.edu/"
+mySqlDbName = "roadtest"
+testAddress = "http://google.com/"

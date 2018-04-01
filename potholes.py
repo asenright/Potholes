@@ -11,6 +11,7 @@ from upload import upload
 from sense_hat import SenseHat
 from datetime import datetime
 import os
+import sys
 
 
 class potholes (threading.Thread):
@@ -39,8 +40,16 @@ class potholes (threading.Thread):
 	red = [125, 0, 0]
 	startMsgShown = False
 
-
-	
+	#We want exactly 3 arguments: script name, username, and password.
+	#One argument is fine too for now, this is just the script name.
+	if len(sys.argv) != 3:
+			print 'Expected usage: "potholes.py mySqlUsername mySqlPassword"'
+			config.mySqlUsername = None
+			config.mySqlPassword = None
+	else:
+		config.mySqlUsername = sys.argv[1]
+		config.mySqlPassword = sys.argv[2]
+		
 	try:
             sense = SenseHat()
             hasHat = True
@@ -72,10 +81,12 @@ class potholes (threading.Thread):
 						except:
 							logging.error('Error starting accel thread\n')
 							pass
-					if t_upload == None:
+					if config.mySqlUsername == None or config.mySqlPassword == None:
+						logging.debug('Username or password has not been given for the database; skipping upload thread')	
+					elif t_upload == None:
 						try:
 							logging.debug('Creating upload thread\n')					
-							t_upload = upload()
+							t_upload = upload(config)
 							t_upload.daemon = True
 							t_upload.start()	
 						except:
@@ -86,25 +97,26 @@ class potholes (threading.Thread):
 						startMsgShown = True
 					time.sleep(0.5)
 				elif direction == 'left':
-					logging.debug('Closing potholes...\n')
 					config.exitFlag = True
 					logging.debug('Potholes closed nicely.\n')
-					sense.show_message("Ended", text_colour=blue)
+					time.sleep(0.1)
 					exit(0)
 				else:
 					time.sleep(0.5)
 	else:
 		try:
 			if t_gps == None:
-					logging.debug('Creating GPS thread\n')
-					t_gps = gps()
-					t_gps.daemon = True
-					t_gps.start()
-			if t_upload == None:
-					logging.debug('Creating upload thread\n')					
-					t_upload = upload()
-					t_upload.daemon = True
-					t_upload.start()	
+				logging.debug('Creating GPS thread\n')
+				t_gps = gps()
+				t_gps.daemon = True
+				t_gps.start()
+			if config.mySqlUsername == None or config.mySqlPassword == None:
+				logging.debug('Username or password has not been given for the database; skipping upload thread')	
+			elif t_upload == None:
+				logging.debug('Creating upload thread\n')					
+				t_upload = upload()
+				t_upload.daemon = True
+				t_upload.start()	
 			while (config.exitFlag == False):
 				time.sleep(config.uploadTimer)
 		except KeyboardInterrupt:
@@ -112,4 +124,3 @@ class potholes (threading.Thread):
 			logging.debug('Potholes closed nicely.\n')
 			time.sleep(0.1)
 			exit(0)
-				
