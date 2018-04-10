@@ -43,7 +43,7 @@ class potholes (threading.Thread):
 	#We want exactly 3 arguments: script name, username, and password.
 	#One argument is fine too for now, this is just the script name.
 	if len(sys.argv) != 3:
-			print 'Expected usage: "potholes.py mySqlUsername mySqlPassword"'
+			logging.debug('Expected usage: "potholes.py mySqlUsername mySqlPassword"')
 			config.mySqlUsername = None
 			config.mySqlPassword = None
 	else:
@@ -57,6 +57,7 @@ class potholes (threading.Thread):
 		logging.error('potholes.py : No senseHat detected; accelerometer data unavailable for this session')
 		hasHat = False
 		
+	#This is the path that runs with the sensehat
 	if (hasHat == True):
 		while True:
 			for event in sense.stick.get_events():
@@ -99,11 +100,12 @@ class potholes (threading.Thread):
 				elif direction == 'left':
 					config.exitFlag = True
 					logging.debug('Potholes closed nicely.\n')
-					time.sleep(0.1)
+					sense.show_message("Done", text_colour=blue)
 					exit(0)
 				else:
 					time.sleep(0.5)
 	else:
+	#This is the path that executes without sensehat
 		try:
 			if t_gps == None:
 				logging.debug('Creating GPS thread\n')
