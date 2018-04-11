@@ -31,11 +31,11 @@ class gps(threading.Thread):
 			stopbits=serial.STOPBITS_ONE,
 			bytesize=serial.EIGHTBITS,	
 			timeout=1)		
-		curDT = datetime.now().strftime("%H:%M:%S:%f")
-		
 	def run(self):
+		curDT = datetime.now().strftime("%H:%M:%S:%f")
 		logger.debug('Running GPS\n')
-		filename = "out/gps.csv"
+		#filename = "out/gps.csv"
+		filename = "out/GPS_" + curDT + ".csv"
 		config.GPSFilename = filename
 		needsHeaders = False
 		if not os.path.isfile(filename):
